@@ -13,12 +13,22 @@ public class HashObject {
         return this.getKey().equals(object);
     }
 
+    public Object getKey() {
+        return key;
+    }
+
+    public void incrementProbeCount() {
+        probeCount++;
+    }
+
+    public void incrementFrequencyCount() {
+        frequencyCount++;
+    }
+    
     @Override
     public String toString() {
         return key + " " + frequencyCount + " " + probeCount;
     }
     
-    public Object getKey() {
-        return key;
-    }
+    
 }
