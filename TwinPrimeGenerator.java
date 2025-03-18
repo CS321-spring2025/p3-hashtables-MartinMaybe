@@ -1,5 +1,10 @@
 public class TwinPrimeGenerator {
 
+    /**
+     * Determines if a number is prime.
+     * @param num - number to check
+     * @return - true if prime, false otherwise
+     */
     private static boolean isPrime(int num) {
         // Greater than 1
         if (num <= 1) {
@@ -16,6 +21,12 @@ public class TwinPrimeGenerator {
         return true;
     }
 
+    /**
+     * Generates twin primes in the given range and returns the larger one.
+     * @param min - minimum number
+     * @param max - maximum number
+     * @return - larger of twin primes, or -1 if none are found
+     */
     public static int generateTwinPrime(int min, int max) {
         for (int i = min; i <= max - 2; i++) {
             if (isPrime(i) && isPrime(i + 2)) {

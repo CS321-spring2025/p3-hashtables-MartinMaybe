@@ -6,7 +6,13 @@ public abstract class Hashtable {
     protected int size;
     protected int capacity;
     protected double loadFactor;
+    protected int totalInserts, totalProbes;
 
+    /**
+     * Initializes Hashtable.
+     * @param capacity - max size 
+     * @param loadFactor - measures elements / table capacity
+     */
     public Hashtable(int capacity, double loadFactor) {
         this.capacity = capacity;
         this.table = new HashObject[capacity];
@@ -14,43 +20,60 @@ public abstract class Hashtable {
         this.size = 0;
     }
 
-    public abstract int h(Object key, int probe);
+    /**
+     * Computes the hash value for a given key with a specified probe number.
+     * @param key - Object being hashed
+     * @param probe - current probe number, increases with every collision
+     * @return - The index in the array where key is inserted at.
+     */
+    protected abstract int h(Object key, int probe);
 
-    protected void instert(Object key) {
+    /**
+     * Inserts a new HashObject with the key into the array.
+     * @param key - HashObject's key value
+     */
+    protected void insert(Object key) {
         HashObject object = new HashObject(key);
-        int i = 0;
-        int j = 0;
+        int i = 0; // probes
+        int slotIndex = 0; 
 
         while (i < capacity) {
-            j = h(key, 0);
-            if (table[j] == null) {
+            slotIndex = h(key, object.getProbeCount());
+            if (table[slotIndex] == null) {
                 // Empty slot
-                table[j] = object;
+                table[slotIndex] = object;
                 size++;
-                table[j].incrementProbeCount();
+                table[slotIndex].incrementProbeCount();
+                totalInserts++;
+                totalProbes += (i + 1);
                 return;
-            } else if (table[j].equals(key)) {
+            } else if (table[slotIndex].equals(key)) {
                 // Duplicate value
-                table[j].incrementFrequencyCount();
+                table[slotIndex].incrementFrequencyCount();
                 return;
             } else {
-                // Not empty and no dupe
+                // Collision
                 object.incrementProbeCount();
                 i++;
             }
         }
-        System.out.println("Error: Hash table overflow");
+        System.out.println("Error: Unable to insert");
     }
 
+    /**
+     * Searches the array for a HashObject matching the given key.
+     * @param key - key we are searching for
+     * @return - index of HashObject if found, or -1 if not
+     */
     protected int search(Object key) {
-        int i = 0;
-        int j = 0;
+        int i = 0; // probes
+        int index = 0;
 
         while (i < capacity) {
-            j = h(key, j);
-            if (table[j].equals(key)) {
+            index = h(key, index);
+            if (table[index].getKey().equals(key)) {
                 // Key found
-                return j;
+                return index;
             } else {
                 i++;
             }
@@ -59,6 +82,12 @@ public abstract class Hashtable {
         return -1;
     }
 
+    /**
+     * Ensures positive mod operation.
+     * @param dividend - dividend
+     * @param divisor - divisor
+     * @return - positive modulus 
+     */
     protected int positiveMod(int dividend, int divisor) {
         int quotient = dividend % divisor;
         if (quotient < 0)
@@ -66,6 +95,12 @@ public abstract class Hashtable {
         return quotient;
     }
 
+    /**
+     * Loops through the hash table, and prints non-null entries
+     * to a dump file using toString() method in the HashObject class.
+     * @param fileName - file to write to
+     * @throws FileNotFoundException
+     */
     public void dumpToFile(String fileName) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(fileName);
     
@@ -78,6 +113,23 @@ public abstract class Hashtable {
         }
         
         out.close();
+    }
+
+    /**
+     * Returns table size
+     * @return - size
+     */
+    public int getSize() {
+        return size;
+    }
+
+    /**
+     * Returns average probe count
+     * @return - average = totalProbes / totalInserts
+     */
+    public double avgProbes() {
+        double average = (double) totalProbes / totalInserts;
+        return average;
     }
 
 
